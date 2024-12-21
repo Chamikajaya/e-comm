@@ -1,0 +1,23 @@
+services:
+
+  postgres:
+    container_name: summit-psql-container
+    image: postgres:alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: chamikajay
+      POSTGRES_PASSWORD: mypassword
+      PGDATA: /data/postgres
+    volumes:
+      - summit-postgres-data:/data/postgres
+    networks:
+      - summit-network
+    restart: unless-stopped
+
+volumes:
+  summit-postgres-data:
+
+networks:
+  summit-network:
+    driver: bridge
