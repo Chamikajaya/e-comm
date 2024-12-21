@@ -24,11 +24,11 @@ public class Category {
     private long id;
 
     @Column(nullable = false)
-    private String title;
+    private String name;
 
     private String description;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)  // to ensure that there are no orphaned products that are not associated with any category.
     private List<Product> products;
 
     @CreatedDate

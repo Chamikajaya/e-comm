@@ -1,4 +1,12 @@
 package chamika.product.dto.category;
 
-public record CategoryResponseBody() {
+import java.time.LocalDateTime;
+
+public record CategoryResponseBody(
+        long id,
+        String title,
+        String description,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
+) {
 }

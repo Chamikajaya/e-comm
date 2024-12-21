@@ -3,7 +3,7 @@ package chamika.product.controller;
 
 import chamika.product.dto.category.CategoryCreateReqBody;
 import chamika.product.dto.category.CategoryResponseBody;
-import chamika.product.service.CategoryService;
+import chamika.product.service.category.CategoryServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,14 +15,16 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CategoryController {
 
-    private final CategoryService categoryService;
+    private final CategoryServiceImpl categoryServiceImpl;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<CategoryResponseBody> createCategory(
             @RequestBody @Valid CategoryCreateReqBody request
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoryServiceImpl.createCategory(request));
     }
+
+//    TODO: Implement Get Products (Paginated) by Category ID
 
 }

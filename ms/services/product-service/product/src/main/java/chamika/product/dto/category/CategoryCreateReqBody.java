@@ -1,4 +1,12 @@
 package chamika.product.dto.category;
 
-public record CategoryCreateReqBody() {
+import jakarta.validation.constraints.NotBlank;
+
+public record CategoryCreateReqBody(
+
+        @NotBlank(message = "Category name is mandatory")
+        String name,
+
+        String description
+) {
 }

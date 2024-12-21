@@ -1,4 +1,4 @@
-package chamika.product.service;
+package chamika.product.service.category;
 
 import chamika.product.dto.category.CategoryCreateReqBody;
 import chamika.product.dto.category.CategoryResponseBody;
@@ -11,13 +11,15 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CategoryService {
+public class CategoryServiceImpl implements CategoryService{
 
     private final CategoryRepository categoryRepository;
 
     // MAPPER
 
-    public CategoryResponseBody createCategory(@Valid CategoryCreateReqBody request) {
+    public CategoryResponseBody createCategory(CategoryCreateReqBody request) {
+
+        return null;  // TODO: Implement
 
 
     }
