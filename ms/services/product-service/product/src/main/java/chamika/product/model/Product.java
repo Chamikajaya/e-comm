@@ -4,12 +4,14 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "t_product")
 @Builder
 @Getter
@@ -43,7 +45,7 @@ public class Product {
     private Boolean isInStock;
 
     @Column(nullable = false)
-    private String supplierId;
+    private Long supplierId;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
