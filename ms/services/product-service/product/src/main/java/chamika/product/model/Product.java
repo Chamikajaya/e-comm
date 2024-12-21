@@ -7,6 +7,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "t_product")
@@ -33,8 +34,10 @@ public class Product {
 
     private String description;
 
-    @Column(nullable = false)
-    private String productImageUrl;
+    @ElementCollection  // * JPA cannot directly map a List of strings to a database column, hence we use @ElementCollection
+    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "image_url")
+    private List<String> productImageUrls;
 
     @Column(nullable = false)
     private Boolean isInStock;
