@@ -44,7 +44,7 @@ public class Product {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private ProductApprovalStatus status;
+    private ProductApprovalStatus status = ProductApprovalStatus.PENDING;
 
     @CreatedDate
     @Column(updatable = false)
