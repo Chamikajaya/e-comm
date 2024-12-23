@@ -55,6 +55,23 @@ public class DefaultExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ImageUploadException.class)
+    public ResponseEntity<APIError> handleException(ImageUploadException e, HttpServletRequest request) {
+
+        log.error("Image Upload Exception Occurred !!! ", e);
+
+        APIError apiError = new APIError(
+                request.getRequestURI(),
+                e.getMessage(),
+                null,
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(apiError, HttpStatus.UNPROCESSABLE_ENTITY);
+
+    }
+
 
     // catch all exceptions
     @ExceptionHandler(Exception.class)

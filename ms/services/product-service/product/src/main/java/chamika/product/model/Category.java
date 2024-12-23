@@ -22,7 +22,7 @@ public class Category {
     @Id
     @SequenceGenerator(name = "category_id", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "category_id")
-    private long id;
+    private Long id;
 
     @Column(nullable = false)
     private String name;

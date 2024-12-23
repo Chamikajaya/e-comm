@@ -30,10 +30,6 @@ public record ProductCreateReqBody(
         @Min(value = 0, message = "Stock level cannot be negative")
         Integer stockLevel,
 
-        // This will store S3 URLs after upload
-        @Size(min = 1, max = 3, message = "Product must have between 1 and 3 images")
-        List<String> productImageUrls,
-
         @NotNull(message = "Stock status is mandatory")
         Boolean isInStock
 ) {

@@ -3,6 +3,11 @@ server:
 
 spring:
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
   datasource:
     url: jdbc:postgresql://localhost:5432/productdb
     username: chamikajay
@@ -17,7 +22,10 @@ spring:
     show-sql: true
 
 
-
+aws:
+  region: ap-south-1
+  s3:
+    bucket-name: project-velocity-bucket  # TODO: Create the bucket in AWS S3
 
 
 

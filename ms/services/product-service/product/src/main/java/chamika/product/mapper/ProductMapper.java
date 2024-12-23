@@ -18,7 +18,6 @@ public class ProductMapper {
                 .price(request.price())
                 .supplierId(request.supplierId())
                 .stockLevel(request.stockLevel())
-                .productImageUrls(request.productImageUrls())
                 .isInStock(request.isInStock())
                 .status(ProductApprovalStatus.PENDING)  // * Default status is PENDING till data steward approves/declines
                 .build();

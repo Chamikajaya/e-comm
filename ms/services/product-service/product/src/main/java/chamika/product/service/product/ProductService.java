@@ -9,13 +9,19 @@ import java.util.List;
 
 public interface ProductService {
 
-    ProductResponseBody createProduct(ProductCreateReqBody reqBody);
+    ProductResponseBody createProduct(ProductCreateReqBody reqBody, List<String> imageUrls);
+
     PageResponse<ProductResponseBody> getAllProducts(int page, int size, String sortBy, String sortDir);
+
     ProductResponseBody getProductById(Long id);
+
     ProductResponseBody updateProduct(Long id, ProductCreateReqBody reqBody);
+
     void deleteProduct(Long id);
-    String uploadProductImage(MultipartFile file);
-    List<ProductResponseBody> searchProducts(String query);
+
+    List<String> uploadProductImages(List<MultipartFile> file);
+
+    PageResponse<ProductResponseBody> searchProducts(String query, int page, int size, String sortBy, String sortDir);
 
 
 }
