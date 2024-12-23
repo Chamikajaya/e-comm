@@ -1,8 +1,10 @@
 package chamika.product.service.product;
 
+import chamika.product.dto.product.ProductApprovalStatusRequest;
 import chamika.product.dto.product.ProductCreateReqBody;
 import chamika.product.dto.product.ProductResponseBody;
 import chamika.product.shared.PageResponse;
+import jakarta.validation.Valid;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -21,4 +23,5 @@ public interface ProductService {
 
     List<String> uploadProductImages(List<MultipartFile> file);
 
+    ProductResponseBody approveProduct(Long id, @Valid ProductApprovalStatusRequest reqBody);
 }

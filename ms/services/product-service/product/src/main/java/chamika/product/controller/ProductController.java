@@ -1,5 +1,6 @@
 package chamika.product.controller;
 
+import chamika.product.dto.product.ProductApprovalStatusRequest;
 import chamika.product.dto.product.ProductCreateReqBody;
 import chamika.product.dto.product.ProductResponseBody;
 import chamika.product.service.product.ProductService;
@@ -18,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductController {
 
-//    TODO: Implement Role Based Access Control - Customer, Steward Only, Supplier Only, Authenticated / Unauthenticated routes config
+// ????    TODO: Implement Role Based Access Control - Customer, Steward Only, Supplier Only, Authenticated / Unauthenticated routes config -- Or could that be done in BFF since it's the one that's going to be calling these services?
 
 
     private final ProductService productService;
@@ -78,6 +79,16 @@ public class ProductController {
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
+    }
+
+
+   @PatchMapping("/{id}/approve")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<ProductResponseBody> approveProduct(
+            @PathVariable Long id,
+            @RequestBody @Valid ProductApprovalStatusRequest reqBody
+   ) {
+        return ResponseEntity.ok(productService.approveProduct(id, reqBody));
     }
 
 

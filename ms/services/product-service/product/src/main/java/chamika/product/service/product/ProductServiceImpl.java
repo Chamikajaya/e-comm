@@ -1,6 +1,7 @@
 package chamika.product.service.product;
 
 
+import chamika.product.dto.product.ProductApprovalStatusRequest;
 import chamika.product.dto.product.ProductCreateReqBody;
 import chamika.product.dto.product.ProductResponseBody;
 import chamika.product.exception.ImageUploadException;
@@ -13,17 +14,15 @@ import chamika.product.repository.ProductRepository;
 import chamika.product.s3.S3Service;
 import chamika.product.shared.PageResponse;
 import chamika.product.shared.PaginationUtils;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,6 +51,8 @@ public class ProductServiceImpl implements ProductService {
                 .collect(Collectors.toList());
 
     }
+
+
 
     @Override
     @Transactional
@@ -152,5 +153,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
-    // TODO: Implement update approval status method for stewards to approve or reject products
+    @Override
+    public ProductResponseBody approveProduct(Long id, @Valid ProductApprovalStatusRequest reqBody) {
+
+        log.info("Steward is Approving / Rejecting  product with id: {}", id);
+
+        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+
+        product.setStatus(reqBody.status());
+
+        return productMapper.toResponseBody(productRepository.save(product));
+
+
+    }
 }
