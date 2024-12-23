@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record ProductResponseBody(
+
         Long id,
         String name,
         String description,
