@@ -25,7 +25,7 @@ public class S3Service {
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
 
-    private static final long MAX_FILE_SIZE = 20 * 1024 * 1024; // 5MB
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
     private static final String[] ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/jpg"};
 
     public String uploadImage(MultipartFile file) {
@@ -52,11 +52,15 @@ public class S3Service {
             return imageUrl;
 
         } catch (S3Exception e) {
+
             log.error("Error uploading file to S3: {}", e.getMessage());
             throw new ImageUploadException("Failed to upload image to S3", e);
+
         } catch (IOException e) {
+
             log.error("Error reading file contents: {}", e.getMessage());
             throw new ImageUploadException("Failed to read image contents", e);
+
         }
     }
 
@@ -116,4 +120,5 @@ public class S3Service {
     private String extractKeyFromUrl(String imageUrl) {
         return imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
     }
+
 }

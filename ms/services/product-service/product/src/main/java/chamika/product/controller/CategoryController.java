@@ -56,7 +56,6 @@ public class CategoryController {
 
 
     /* GET ALL PRODUCTS BY CATEGORY */
-//    TODO: Double check this method + Sorting Logic
     @GetMapping("/{id}/products")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<PageResponse<ProductResponseBody>> getProductsByCategory(

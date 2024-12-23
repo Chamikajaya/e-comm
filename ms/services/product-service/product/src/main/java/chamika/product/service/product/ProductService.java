@@ -11,7 +11,7 @@ public interface ProductService {
 
     ProductResponseBody createProduct(ProductCreateReqBody reqBody, List<String> imageUrls);
 
-    PageResponse<ProductResponseBody> getAllProducts(int page, int size, String sortBy, String sortDir);
+    PageResponse<ProductResponseBody> getAllProducts(int page, int size, String sortBy, String sortDir, String query);
 
     ProductResponseBody getProductById(Long id);
 
@@ -20,8 +20,5 @@ public interface ProductService {
     void deleteProduct(Long id);
 
     List<String> uploadProductImages(List<MultipartFile> file);
-
-    PageResponse<ProductResponseBody> searchProducts(String query, int page, int size, String sortBy, String sortDir);
-
 
 }

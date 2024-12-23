@@ -12,6 +12,7 @@ import chamika.product.repository.CategoryRepository;
 import chamika.product.repository.ProductRepository;
 import chamika.product.s3.S3Service;
 import chamika.product.shared.PageResponse;
+import chamika.product.shared.PaginationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -36,27 +37,24 @@ public class ProductServiceImpl implements ProductService {
     private final ProductMapper productMapper;
     private final S3Service s3Service;
 
-//  !  TODO: Need to add image urls from s3 to the database when creating a product - so that we can send them in product response body to front end
 
     @Override
-    @Transactional
     public List<String> uploadProductImages(List<MultipartFile> files) {
 
-        List<String> imageUrls = new ArrayList<>();
-
-        for (MultipartFile image : files) {
-
-            log.info("Uploading product image: {}", image.getOriginalFilename());
-            String imageUrl = s3Service.uploadImage(image);
-            imageUrls.add(imageUrl);
-
+        if (files.size() > 5) {
+            throw new ImageUploadException("Cannot have more than 5 images");
         }
-
-        return imageUrls;
+        return files.stream()
+                .map(file -> {
+                    log.info("Uploading product image: {}", file.getOriginalFilename());
+                    return s3Service.uploadImage(file);
+                })
+                .collect(Collectors.toList());
 
     }
 
     @Override
+    @Transactional
     public ProductResponseBody createProduct(ProductCreateReqBody reqBody, List<String> imageUrls) {
 
         log.info("Creating a new product: {}", reqBody);
@@ -65,8 +63,7 @@ public class ProductServiceImpl implements ProductService {
             throw new ImageUploadException("Cannot have more than 5 images");
         }
 
-        Category category = categoryRepository.findById(reqBody.categoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        Category category = categoryRepository.findById(reqBody.categoryId()).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
         Product product = productMapper.toEntity(reqBody);
         product.setCategory(category);
@@ -78,80 +75,40 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Transactional
     public ProductResponseBody updateProduct(Long id, ProductCreateReqBody reqBody) {
 
         log.info("Updating product with id: {}", id);
 
-        Product existingProduct = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+        Product existingProduct = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
-
-
-        // Update product
+        // Update product details
         existingProduct.setTitle(reqBody.title());
         existingProduct.setPrice(reqBody.price());
         existingProduct.setStockLevel(reqBody.stockLevel());
         existingProduct.setDescription(reqBody.description());
-
-//! TODO: -        HOW TO HANDLE IMAGE URLS in update
-
         existingProduct.setIsInStock(reqBody.isInStock());
         existingProduct.setSupplierId(reqBody.supplierId());
 
-
-        // Update category if changed
+        // Handle category updates
         if (!existingProduct.getCategory().getId().equals(reqBody.categoryId())) {
-
-            Category newCategory = categoryRepository.findById(reqBody.categoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+            Category newCategory = categoryRepository.findById(reqBody.categoryId()).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
             existingProduct.setCategory(newCategory);
         }
 
         return productMapper.toResponseBody(productRepository.save(existingProduct));
 
-
     }
 
-    @Override
-    public PageResponse<ProductResponseBody> getAllProducts(int page, int size, String sortBy, String sortDir) {
-
-        log.info("Fetching all products");
-
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
-                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-
-        Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Product> productPage = productRepository.findAll(pageable);
-
-        List<ProductResponseBody> products = productPage.getContent().stream()
-                .map(productMapper::toResponseBody)
-                .collect(Collectors.toList());
-
-        return new PageResponse<>(
-                products,
-                productPage.getNumber(),
-                productPage.getTotalPages(),
-                productPage.getSize(),
-                productPage.getTotalElements(),
-                productPage.isFirst(),
-                productPage.isLast()
-        );
-
-
-    }
 
     @Override
     public ProductResponseBody getProductById(Long id) {
 
         log.info("Fetching product with id: {}", id);
 
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
         return productMapper.toResponseBody(product);
     }
-
 
 
     @Override
@@ -160,10 +117,9 @@ public class ProductServiceImpl implements ProductService {
 
         log.info("Deleting product with id: {}", id);
 
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+        Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
-        // Delete all associated images
+        // Delete all associated images from s3
         if (product.getProductImageUrls() != null) {
             product.getProductImageUrls().forEach(s3Service::deleteImage);
         }
@@ -172,34 +128,28 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
-
     @Override
-    public PageResponse<ProductResponseBody> searchProducts(String query, int page, int size, String sortBy, String sortDir) {
+    public PageResponse<ProductResponseBody> getAllProducts(int page, int size, String sortBy, String sortDir, String query) {
 
-        log.info("Searching products with query: {}, page: {}, size: {}", query, page, size);
+        log.info("Fetching all products");
 
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
-                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PaginationUtils.createPageRequest(page, size, sortBy, sortDir);
 
-        Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Product> productPage = productRepository.searchProducts(query, pageable);
+        Page<Product> productPage;
 
-        List<ProductResponseBody> products = productPage.getContent().stream()
-                .map(productMapper::toResponseBody)
-                .collect(Collectors.toList());
+        // if query is present, search products by title or description else return all products
+        if (query != null) {
+            productPage = productRepository.searchProducts(query, pageable);
+        } else {
+            productPage = productRepository.findAll(pageable);
+        }
 
-        return new PageResponse<>(
-                products,
-                productPage.getNumber(),
-                productPage.getTotalPages(),
-                productPage.getSize(),
-                productPage.getTotalElements(),
-                productPage.isFirst(),
-                productPage.isLast()
-        );
+        List<ProductResponseBody> products = productPage.getContent().stream().map(productMapper::toResponseBody).collect(Collectors.toList());
+
+        return new PageResponse<>(products, productPage.getNumber(), productPage.getTotalPages(), productPage.getSize(), productPage.getTotalElements(), productPage.isFirst(), productPage.isLast());
+
+
     }
-
-
 
 
     // TODO: Implement update approval status method for stewards to approve or reject products

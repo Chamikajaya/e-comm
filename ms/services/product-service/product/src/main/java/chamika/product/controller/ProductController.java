@@ -2,7 +2,6 @@ package chamika.product.controller;
 
 import chamika.product.dto.product.ProductCreateReqBody;
 import chamika.product.dto.product.ProductResponseBody;
-import chamika.product.exception.ImageUploadException;
 import chamika.product.service.product.ProductService;
 import chamika.product.shared.PageResponse;
 import jakarta.validation.Valid;
@@ -19,17 +18,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductController {
 
-    private final ProductService productService;
+//    TODO: Implement Role Based Access Control - Customer, Steward Only, Supplier Only, Authenticated / Unauthenticated routes config
 
-    @PostMapping("/images")
-    public ResponseEntity<List<String>> uploadImages(
-            @RequestParam("files") List<MultipartFile> files) {
-        if (files.size() > 5) {
-            throw new ImageUploadException("Cannot upload more than 5 images");
-        }
-        List<String> urls = productService.uploadProductImages(files);
-        return ResponseEntity.ok(urls);
-    }
+
+    private final ProductService productService;
 
 
     // * @RequestPart annotation is used instead of @RequestBody because the createProduct method expects a multipart request containing both a JSON object (ProductCreateReqBody) and a list of files (List<MultipartFile>).
@@ -39,7 +31,7 @@ public class ProductController {
             @RequestPart("images") List<MultipartFile> images
     ) {
 
-        // First upload images
+        // * First upload images to s3 and get image URLs to store in the database :)
         List<String> imageUrls = productService.uploadProductImages(images);
 
         // Create product with image URLs
@@ -47,41 +39,45 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(product);
     }
 
+    // Combine search and getAll into single endpoint
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<PageResponse<ProductResponseBody>> getAllProducts(
+            @RequestParam(required = false) String query,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
-        return ResponseEntity.ok(productService.getAllProducts(page, size, sortBy, sortDir));
+
+        return ResponseEntity.ok(productService.getAllProducts(page, size, sortBy, sortDir, query));
+
     }
 
+
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<ProductResponseBody> updateProduct(
+            @PathVariable Long id,
+            @RequestPart("product") @Valid ProductCreateReqBody reqBody
+    ) {
+        ProductResponseBody updatedProduct = productService.updateProduct(id, reqBody);
+        return ResponseEntity.ok(updatedProduct);
+    }
+
+
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ProductResponseBody> getProduct(@PathVariable Long id) {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ProductResponseBody> updateProduct(
-            @PathVariable Long id,
-            @Valid @RequestBody ProductCreateReqBody request) {
-        return ResponseEntity.ok(productService.updateProduct(id, request));
-    }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<PageResponse<ProductResponseBody>> searchProducts(
-            @RequestParam String query,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir) {
-        return ResponseEntity.ok(productService.searchProducts(query, page, size, sortBy, sortDir));
     }
 
 

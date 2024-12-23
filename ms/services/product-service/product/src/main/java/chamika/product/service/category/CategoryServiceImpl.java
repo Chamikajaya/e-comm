@@ -11,6 +11,7 @@ import chamika.product.model.Product;
 import chamika.product.repository.CategoryRepository;
 import chamika.product.repository.ProductRepository;
 import chamika.product.shared.PageResponse;
+import chamika.product.shared.PaginationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -96,13 +97,9 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + categoryId));
 
-        // Create Sort object based on direction
 
-        // Create pageable with sorting
-        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
-                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = PaginationUtils.createPageRequest(page, size, sortBy, sortDir);
         
         Page<Product> productPage = productRepository.findByCategory(category, pageable);
 
