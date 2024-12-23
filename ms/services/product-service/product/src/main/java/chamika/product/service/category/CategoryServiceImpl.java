@@ -96,11 +96,14 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + categoryId));
 
+        // Create Sort object based on direction
 
+        // Create pageable with sorting
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
                 Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
+        
         Page<Product> productPage = productRepository.findByCategory(category, pageable);
 
         List<ProductResponseBody> productResponseDTOList = productPage.stream()
