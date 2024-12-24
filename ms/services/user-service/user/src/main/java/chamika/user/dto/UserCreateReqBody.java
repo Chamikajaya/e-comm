@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record UserCreateReqBody(
+
         @NotBlank(message = "Username is required")
         String username,
 
