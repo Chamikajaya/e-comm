@@ -1,46 +1,34 @@
 package chamika.user.controller;
 
-
 import chamika.user.dto.user.UserCreateReqBody;
 import chamika.user.dto.user.UserResponseBody;
 import chamika.user.dto.user.UserUpdateReqBody;
-import chamika.user.service.UserServiceImpl;
+import chamika.user.model.User;
+import chamika.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
-public class UserController {
+public class UserController extends AbstractController<User, Long, UserCreateReqBody, UserUpdateReqBody, UserResponseBody> {
 
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<UserResponseBody> createUser(
-            @Valid @RequestBody UserCreateReqBody userCreateReqBody
-    ) {
-        return ResponseEntity.ok(userService.createUser(userCreateReqBody));
+    @Override
+    protected UserResponseBody createEntity(@Valid UserCreateReqBody createDTO) {
+        return userService.createUser(createDTO);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponseBody> getUser(
-            @PathVariable Long id
-    ) {
-        return ResponseEntity.ok(userService.getUser(id));
+    @Override
+    protected UserResponseBody getEntity(Long id) {
+        return userService.getUser(id);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<UserResponseBody> updateUser(
-            @PathVariable Long id,
-            @Valid @RequestBody UserUpdateReqBody userUpdateReqBody
-    ) {
-        return ResponseEntity.ok(userService.updateUser(id, userUpdateReqBody));
+    @Override
+    protected UserResponseBody updateEntity(Long id, @Valid UserUpdateReqBody updateDTO) {
+        return userService.updateUser(id, updateDTO);
     }
-
-
-
 }
