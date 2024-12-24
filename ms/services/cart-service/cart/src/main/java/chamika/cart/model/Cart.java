@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -29,9 +30,9 @@ public class Cart {
     private long userId;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CartItem> items;
+    private List<CartItem> items = new ArrayList<>();
 
-    private BigDecimal totalAmount;
+    private BigDecimal totalAmount = BigDecimal.ZERO;  // Default value of 0 for total amount
 
     @CreatedDate
     private LocalDateTime createdDate;

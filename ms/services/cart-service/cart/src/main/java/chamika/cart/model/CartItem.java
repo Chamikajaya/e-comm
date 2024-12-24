@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "t_cart")
+@Table(name = "t_cart_item")
 @Builder
 @Getter
 @Setter
@@ -29,9 +29,6 @@ public class CartItem {
 
     @Column(nullable = false)
     private long productId;
-
-    @Column(nullable = false)
-    private String productName;
 
     @Column(nullable = false)
     @Min(1)
