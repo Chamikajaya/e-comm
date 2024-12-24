@@ -6,7 +6,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "t_user")
+
+// * added unique constraints so that username and email are unique
+@Table(name = "t_user", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_user_username", columnNames = "username"),
+        @UniqueConstraint(name = "uk_user_email", columnNames = "email")
+})
+
 @Builder
 @Getter
 @Setter

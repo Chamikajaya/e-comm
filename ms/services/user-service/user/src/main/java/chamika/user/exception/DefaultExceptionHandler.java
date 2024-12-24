@@ -3,6 +3,7 @@ package chamika.user.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -53,6 +54,47 @@ public class DefaultExceptionHandler {
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<APIError> handleDuplicateResourceException(
+            DuplicateResourceException e,
+            HttpServletRequest request
+    ) {
+        log.error("Duplicate Resource Exception !!! ", e);
+
+        APIError apiError = new APIError(
+                request.getRequestURI(),
+                e.getMessage(),
+                null,
+                HttpStatus.CONFLICT.value(),
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<APIError> handleDataIntegrityViolationException(
+            DataIntegrityViolationException e,
+            HttpServletRequest request) {
+
+        log.error("DataIntegrityViolation Exception occurred", e);
+
+        String message = "Database constraint violation";
+        if (e.getCause() != null) {
+            message = "A record with the same unique field already exists";
+        }
+
+        APIError apiError = new APIError(
+                request.getRequestURI(),
+                message,
+                null,
+                HttpStatus.CONFLICT.value(),
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(apiError, HttpStatus.CONFLICT);
     }
 
 
