@@ -1,8 +1,8 @@
 package chamika.user.service;
 
-import chamika.user.dto.UserCreateReqBody;
-import chamika.user.dto.UserResponseBody;
-import jakarta.validation.Valid;
+import chamika.user.dto.user.UserCreateReqBody;
+import chamika.user.dto.user.UserResponseBody;
+import chamika.user.dto.user.UserUpdateReqBody;
 
 public interface UserService {
 
@@ -10,5 +10,5 @@ public interface UserService {
 
     UserResponseBody getUser(Long id);
 
-    UserResponseBody updateUser(Long id, UserCreateReqBody userCreateReqBody);
+    UserResponseBody updateUser(Long id, UserUpdateReqBody updateReqBody);
 }

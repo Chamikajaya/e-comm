@@ -1,8 +1,9 @@
 package chamika.user.mapper;
 
-import chamika.user.dto.AddressDto;
-import chamika.user.dto.UserCreateReqBody;
-import chamika.user.dto.UserResponseBody;
+import chamika.user.dto.address.AddressDto;
+import chamika.user.dto.user.UserCreateReqBody;
+import chamika.user.dto.user.UserResponseBody;
+import chamika.user.dto.user.UserUpdateReqBody;
 import chamika.user.model.Address;
 import chamika.user.model.User;
 import jakarta.validation.Valid;
@@ -46,5 +47,30 @@ public class UserMapper {
                 user.getRole(),
                 addressDto
         );
+    }
+
+    public void updateUserFromDto(User user, UserUpdateReqBody updateReqBody) {
+
+        if (updateReqBody.username() != null) {
+            user.setUsername(updateReqBody.username());
+        }
+
+        if (updateReqBody.address() != null) {
+
+            Address address = user.getAddress();
+
+            if (updateReqBody.address().street() != null) {
+                address.setStreet(updateReqBody.address().street());
+            }
+            if (updateReqBody.address().city() != null) {
+                address.setCity(updateReqBody.address().city());
+            }
+            if (updateReqBody.address().zipCode() != null) {
+                address.setZipCode(updateReqBody.address().zipCode());
+            }
+            if (updateReqBody.address().country() != null) {
+                address.setCountry(updateReqBody.address().country());
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
-package chamika.user.dto;
+package chamika.user.dto.user;
 
+import chamika.user.dto.address.AddressDto;
 import chamika.user.model.UserRole;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;

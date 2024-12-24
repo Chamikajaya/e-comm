@@ -1,8 +1,9 @@
 package chamika.user.controller;
 
 
-import chamika.user.dto.UserCreateReqBody;
-import chamika.user.dto.UserResponseBody;
+import chamika.user.dto.user.UserCreateReqBody;
+import chamika.user.dto.user.UserResponseBody;
+import chamika.user.dto.user.UserUpdateReqBody;
 import chamika.user.service.UserServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,9 +36,9 @@ public class UserController {
     @PatchMapping("/{id}")
     public ResponseEntity<UserResponseBody> updateUser(
             @PathVariable Long id,
-            @Valid @RequestBody UserCreateReqBody userCreateReqBody
+            @Valid @RequestBody UserUpdateReqBody userUpdateReqBody
     ) {
-        return ResponseEntity.ok(userService.updateUser(id, userCreateReqBody));
+        return ResponseEntity.ok(userService.updateUser(id, userUpdateReqBody));
     }
 
 

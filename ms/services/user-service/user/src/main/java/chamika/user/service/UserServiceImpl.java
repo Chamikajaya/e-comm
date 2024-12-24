@@ -1,8 +1,9 @@
 package chamika.user.service;
 
 
-import chamika.user.dto.UserCreateReqBody;
-import chamika.user.dto.UserResponseBody;
+import chamika.user.dto.user.UserCreateReqBody;
+import chamika.user.dto.user.UserResponseBody;
+import chamika.user.dto.user.UserUpdateReqBody;
 import chamika.user.exception.ResourceNotFoundException;
 import chamika.user.mapper.UserMapper;
 import chamika.user.model.Address;
@@ -46,29 +47,18 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserResponseBody updateUser(Long id, UserCreateReqBody userCreateReqBody) {
+    public UserResponseBody updateUser(Long id, UserUpdateReqBody updateReqBody) {
 
-        log.info("Updating user with id: {}", id);
-
-        // ! Will not let user update his/her role + email
+        // TODO: Handle email update ??? - for now not allowing email update
 
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         String.format("User not found with id: %d", id)));
 
-        // Update user fields except role
-        existingUser.setUsername(userCreateReqBody.username());
-
-        // Update address fields
-        Address existingAddress = existingUser.getAddress();
-        existingAddress.setStreet(userCreateReqBody.address().street());
-        existingAddress.setCity(userCreateReqBody.address().city());
-        existingAddress.setZipCode(userCreateReqBody.address().zipCode());
-        existingAddress.setCountry(userCreateReqBody.address().country());
-
+        userMapper.updateUserFromDto(existingUser, updateReqBody);
         return userMapper.toResponseBody(userRepository.save(existingUser));
-    }
 
+    }
 
 
 

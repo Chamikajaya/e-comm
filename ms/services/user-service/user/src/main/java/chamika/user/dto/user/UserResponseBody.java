@@ -1,5 +1,6 @@
-package chamika.user.dto;
+package chamika.user.dto.user;
 
+import chamika.user.dto.address.AddressDto;
 import chamika.user.model.UserRole;
 
 public record UserResponseBody (

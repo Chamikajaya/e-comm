@@ -1,4 +1,4 @@
-package chamika.user.dto;
+package chamika.user.dto.address;
 
 import jakarta.validation.constraints.NotBlank;
 
