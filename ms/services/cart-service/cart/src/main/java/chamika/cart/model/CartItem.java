@@ -28,7 +28,7 @@ public class CartItem {
 
 
     @Column(nullable = false)
-    private long productId;
+    private Long productId;
 
     @Column(nullable = false)
     @Min(1)
