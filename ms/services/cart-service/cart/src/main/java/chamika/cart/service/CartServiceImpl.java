@@ -3,8 +3,10 @@ package chamika.cart.service;
 import chamika.cart.dto.cart.CartCreateReqBody;
 import chamika.cart.dto.cart.CartResponseBody;
 import chamika.cart.dto.cart_item.AddToCartRequestBody;
+import chamika.cart.dto.cart_item.UpdateCartItemRequestBody;
 import chamika.cart.exception.DuplicateResourceException;
 import chamika.cart.exception.ResourceNotFoundException;
+import chamika.cart.mapper.CartItemMapper;
 import chamika.cart.mapper.CartMapper;
 import chamika.cart.model.Cart;
 import chamika.cart.model.CartItem;
@@ -13,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ public class CartServiceImpl implements CartService{
 
     private final CartRepository cartRepository;
     private final CartMapper cartMapper;
+    private final CartItemMapper cartItemMapper;
 
 
 
@@ -53,37 +55,89 @@ public class CartServiceImpl implements CartService{
     @Override
     public CartResponseBody addItemToCart(Long customerId, AddToCartRequestBody addToCartRequestBody) {
 
-        return null;
+        Cart cart = cartRepository.findByUserId(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Cart not found for customer: " + customerId));
 
-//        Cart cart = cartRepository.findByUserId(customerId)
-//                .orElseThrow(() -> new ResourceNotFoundException(
-//                        "Cart not found for customer: " + customerId));
-//
-//        // before adding check if item already exists in cart
-//        Optional<CartItem> existingItem = cart.getItems()
-//                .stream()
-//                .filter(cartItem -> cartItem.getProductId().equals(addToCartRequestBody.productId()))
-//                .findFirst();
-//
-//        if(existingItem.isPresent()){
-//
-//            CartItem cartItem = existingItem.get();
-//            cartItem.setQuantity();
-//
-//        } else {
-//
-//        }
-//
+       CartItem cartItem = cartItemMapper.toEntity(addToCartRequestBody, cart);
+
+        cart.addItem(cartItem);
+
+        cart = cartRepository.save(cart);
+
+        return cartMapper.toResponseBody(cart);
 
     }
 
     @Override
+    public CartResponseBody updateCartItem(Long customerId, Long itemId, UpdateCartItemRequestBody updateCartItemRequestBody) {
+
+        Cart cart = cartRepository.findByUserId(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Cart not found for customer: " + customerId));
+        CartItem itemToUpdate = cart.getItems()
+                .stream()
+                .filter(cartItem -> cartItem.getId() == itemId)
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Item not found in cart: " + itemId));
+
+        if (updateCartItemRequestBody.quantity() != null) {
+            itemToUpdate.setQuantity(updateCartItemRequestBody.quantity());
+        }
+
+        if (updateCartItemRequestBody.unitPrice() != null) {
+            itemToUpdate.setUnitPrice(updateCartItemRequestBody.unitPrice());
+        }
+
+        cart = cartRepository.save(cart);
+        return cartMapper.toResponseBody(cart);
+
+
+    }
+
+
+
+
+
+
+
+
+    @Override
     public CartResponseBody resetCart(Long customerId) {
-        return null;
+
+        Cart cart = cartRepository.findByUserId(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Cart not found for customer: " + customerId));
+
+        cart.getItems().clear();
+
+        cart = cartRepository.save(cart);
+
+        return cartMapper.toResponseBody(cart);
     }
 
     @Override
     public CartResponseBody removeItemFromCart(Long customerId, Long itemId) {
-        return null;
+
+        Cart cart = cartRepository.findByUserId(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Cart not found for customer: " + customerId));
+
+        CartItem itemToRemove = cart.getItems()
+                .stream()
+                .filter(cartItem -> cartItem.getId() == itemId)
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Item not found in cart: " + itemId));
+
+        cart.removeItem(itemToRemove);
+
+        cart = cartRepository.save(cart);
+
+        return cartMapper.toResponseBody(cart);
+
     }
+
+
 }

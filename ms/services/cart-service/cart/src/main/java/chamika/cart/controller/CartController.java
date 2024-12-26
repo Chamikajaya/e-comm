@@ -4,6 +4,7 @@ package chamika.cart.controller;
 import chamika.cart.dto.cart.CartCreateReqBody;
 import chamika.cart.dto.cart.CartResponseBody;
 import chamika.cart.dto.cart_item.AddToCartRequestBody;
+import chamika.cart.dto.cart_item.UpdateCartItemRequestBody;
 import chamika.cart.service.CartService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CartController {
 
-    // TODO: Later add Abstract Controller and implement the methods
+    // TODO: Later add Abstract Controller
 
     private final CartService cartService;
 
@@ -55,12 +56,15 @@ public class CartController {
         return ResponseEntity.ok(cartService.removeItemFromCart(customerId, itemId));
     }
 
-    // TODO: What about update cart item ???
-
-
-
-
-
+    @PostMapping("/{customerId}/items/{itemId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<CartResponseBody> updateCartItem(
+            @PathVariable Long customerId,
+            @PathVariable Long itemId,
+            @RequestBody @Valid UpdateCartItemRequestBody updateCartItemRequestBody
+    ) {
+        return ResponseEntity.ok(cartService.updateCartItem(customerId, itemId, updateCartItemRequestBody));
+    }
 
 
 }

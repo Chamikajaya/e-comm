@@ -4,6 +4,7 @@ package chamika.cart.service;
 import chamika.cart.dto.cart.CartCreateReqBody;
 import chamika.cart.dto.cart.CartResponseBody;
 import chamika.cart.dto.cart_item.AddToCartRequestBody;
+import chamika.cart.dto.cart_item.UpdateCartItemRequestBody;
 import jakarta.validation.Valid;
 
 public interface CartService {
@@ -17,4 +18,6 @@ public interface CartService {
     CartResponseBody resetCart(Long customerId);
 
     CartResponseBody removeItemFromCart(Long customerId, Long itemId);
+
+    CartResponseBody updateCartItem(Long customerId, Long itemId, @Valid UpdateCartItemRequestBody updateCartItemRequestBody);
 }
