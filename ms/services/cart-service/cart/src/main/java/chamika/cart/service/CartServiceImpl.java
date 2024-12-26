@@ -29,114 +29,82 @@ public class CartServiceImpl implements CartService{
 
     @Override
     public CartResponseBody getCartByCustomerId(Long customerId) {
-
-        Cart cart = cartRepository.findByUserId(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Cart not found for customer: " + customerId));
-
+        Cart cart = findCartByCustomerId(customerId);
         return cartMapper.toResponseBody(cart);
-
     }
 
     @Override
     public CartResponseBody createCart(CartCreateReqBody cartCreateReqBody) {
-
-        // check if cart already exists
         if(cartRepository.existsByUserId(cartCreateReqBody.customerId())){
             throw new DuplicateResourceException("Cart already exists for customer: " + cartCreateReqBody.customerId());
         }
-
-        Cart cart = cartRepository.save(cartMapper.toEntity(cartCreateReqBody));
-
-        return cartMapper.toResponseBody(cart);
-
+        Cart cart = cartMapper.toEntity(cartCreateReqBody);
+        return saveAndReturnResponse(cart);
     }
 
     @Override
     public CartResponseBody addItemToCart(Long customerId, AddToCartRequestBody addToCartRequestBody) {
-
-        Cart cart = cartRepository.findByUserId(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Cart not found for customer: " + customerId));
-
-       CartItem cartItem = cartItemMapper.toEntity(addToCartRequestBody, cart);
-
+        Cart cart = findCartByCustomerId(customerId);
+        CartItem cartItem = cartItemMapper.toEntity(addToCartRequestBody, cart);
         cart.addItem(cartItem);
-
-        cart = cartRepository.save(cart);
-
-        return cartMapper.toResponseBody(cart);
-
+        return saveAndReturnResponse(cart);
     }
 
     @Override
     public CartResponseBody updateCartItem(Long customerId, Long itemId, UpdateCartItemRequestBody updateCartItemRequestBody) {
-
-        Cart cart = cartRepository.findByUserId(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Cart not found for customer: " + customerId));
-        CartItem itemToUpdate = cart.getItems()
-                .stream()
-                .filter(cartItem -> cartItem.getId() == itemId)
-                .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Item not found in cart: " + itemId));
+        Cart cart = findCartByCustomerId(customerId);
+        CartItem itemToUpdate = findCartItemById(cart, itemId);
 
         if (updateCartItemRequestBody.quantity() != null) {
             itemToUpdate.setQuantity(updateCartItemRequestBody.quantity());
         }
-
         if (updateCartItemRequestBody.unitPrice() != null) {
             itemToUpdate.setUnitPrice(updateCartItemRequestBody.unitPrice());
         }
 
-        cart = cartRepository.save(cart);
-        return cartMapper.toResponseBody(cart);
-
-
+        return saveAndReturnResponse(cart);
     }
-
-
-
-
-
-
-
 
     @Override
     public CartResponseBody resetCart(Long customerId) {
-
-        Cart cart = cartRepository.findByUserId(customerId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Cart not found for customer: " + customerId));
-
+        Cart cart = findCartByCustomerId(customerId);
         cart.getItems().clear();
-
-        cart = cartRepository.save(cart);
-
-        return cartMapper.toResponseBody(cart);
+        return saveAndReturnResponse(cart);
     }
 
     @Override
     public CartResponseBody removeItemFromCart(Long customerId, Long itemId) {
+        Cart cart = findCartByCustomerId(customerId);
+        CartItem itemToRemove = findCartItemById(cart, itemId);
+        cart.removeItem(itemToRemove);
+        return saveAndReturnResponse(cart);
+    }
 
-        Cart cart = cartRepository.findByUserId(customerId)
+
+
+    // Helper methods to reduce code duplication -->
+
+    // Helper method to find cart
+    private Cart findCartByCustomerId(Long customerId) {
+        return cartRepository.findByUserId(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Cart not found for customer: " + customerId));
+    }
 
-        CartItem itemToRemove = cart.getItems()
+    // Helper method to find cart item
+    private CartItem findCartItemById(Cart cart, Long itemId) {
+        return cart.getItems()
                 .stream()
                 .filter(cartItem -> cartItem.getId() == itemId)
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Item not found in cart: " + itemId));
+    }
 
-        cart.removeItem(itemToRemove);
-
+    // Helper method to save cart and return response
+    private CartResponseBody saveAndReturnResponse(Cart cart) {
         cart = cartRepository.save(cart);
-
         return cartMapper.toResponseBody(cart);
-
     }
 
 
