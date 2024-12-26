@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CartController {
 
-    // TODO: Later add Abstract Controller
 
     private final CartService cartService;
 
@@ -56,7 +55,7 @@ public class CartController {
         return ResponseEntity.ok(cartService.removeItemFromCart(customerId, itemId));
     }
 
-    @PostMapping("/{customerId}/items/{itemId}")
+    @PutMapping("/{customerId}/items/{itemId}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<CartResponseBody> updateCartItem(
             @PathVariable Long customerId,

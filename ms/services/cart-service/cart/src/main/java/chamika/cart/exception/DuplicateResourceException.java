@@ -1,6 +1,7 @@
 package chamika.cart.exception;
 
 public class DuplicateResourceException extends RuntimeException {
-    public DuplicateResourceException(String s) {
+    public DuplicateResourceException(String message) {
+        super(message);
     }
 }

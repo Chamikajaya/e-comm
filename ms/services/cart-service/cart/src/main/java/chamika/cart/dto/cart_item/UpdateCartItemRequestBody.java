@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 
 public record UpdateCartItemRequestBody(
 
+        // TODO: fix the bug - cart not updating its total amount after updating a cart item
+
         @Positive(message = "Quantity should be greater than zero")
         Integer quantity,
 

@@ -54,6 +54,8 @@ public class CartItem {
     public void findSubTotal() {
         if (quantity != null && unitPrice != null) {
             subTotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
+        } else {
+            subTotal = BigDecimal.ZERO;
         }
     }
 

@@ -30,8 +30,10 @@ public class Cart {
     private long userId;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<CartItem> items = new ArrayList<>();
 
+    @Builder.Default
     private BigDecimal totalAmount = BigDecimal.ZERO;  // Default value of 0 for total amount
 
     @CreatedDate
@@ -61,9 +63,20 @@ public class Cart {
     @PreUpdate  // Calculate total amount before updating
     public void calculateTotalAmountForCart() {
 
+        if (items == null || items.isEmpty()) {
+            totalAmount = BigDecimal.ZERO;
+            return;
+        }
+
         totalAmount = items.stream()
-                .map(CartItem::getSubTotal)
+                .map(item -> {
+                    if (item.getSubTotal() == null) {
+                        item.findSubTotal();
+                    }
+                    return item.getSubTotal();
+                })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
     }
 
 
