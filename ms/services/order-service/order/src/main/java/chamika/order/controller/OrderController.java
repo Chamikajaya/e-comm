@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
@@ -42,7 +44,7 @@ public class OrderController {
 
     @GetMapping("/customer/{customerId}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<OrderResponse> getOrdersByCustomerId(
+    public ResponseEntity<List<OrderResponse>> getOrdersByCustomerId(
             @PathVariable Long customerId
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(orderService.getOrdersByCustomerId(customerId));
@@ -52,7 +54,7 @@ public class OrderController {
     // get all orders -> for steward-admins
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<OrderResponse> getAllOrders() {
+    public ResponseEntity<List<OrderResponse>> getAllOrders() {
         return ResponseEntity.status(HttpStatus.OK).body(orderService.getAllOrders());
     }
 
