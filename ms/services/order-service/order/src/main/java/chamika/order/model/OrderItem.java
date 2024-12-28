@@ -38,6 +38,12 @@ public class OrderItem {
     @Column(nullable = false)
     private BigDecimal subTotal;
 
+    @PrePersist
+    @PreUpdate
+    public void calculateSubTotal() {
+        this.subTotal = this.unitPrice.multiply(BigDecimal.valueOf(this.quantity));
+    }
+
 
 
 

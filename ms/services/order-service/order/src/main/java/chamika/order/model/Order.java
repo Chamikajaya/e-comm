@@ -50,7 +50,8 @@ public class Order {
     private String orderTrackingReferenceString;
 
     @Column(nullable = false)
-    private BigDecimal totalOrderPrice;
+    @Builder.Default
+    private BigDecimal totalOrderPrice = BigDecimal.ZERO;
 
     @CreatedDate
     @Column(updatable = false)
@@ -68,18 +69,58 @@ public class Order {
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();
 
+    @PrePersist
+    public void prePersist() {
+        generateOrderTrackingReferenceString();
+        calculateTotalOrderPrice();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        calculateTotalOrderPrice();
+    }
+
+    private void calculateTotalOrderPrice() {
+        if (orderItems == null || orderItems.isEmpty()) {
+            totalOrderPrice = BigDecimal.ZERO;
+            return;
+        }
+
+        totalOrderPrice = orderItems.stream()
+                .map(item -> {
+                    if (item.getSubTotal() == null) {
+                        item.calculateSubTotal();
+                    }
+                    return item.getSubTotal();
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
 
     // generating a unique tracking reference for the order
-    private String generateOrderTrackingReferenceString() {
+    private void generateOrderTrackingReferenceString() {
 
         LocalDateTime now = LocalDateTime.now();
         String timestamp = now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         String uuid = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        return String.format("ORD-%s-%s", timestamp, uuid);
+        this.orderTrackingReferenceString = String.format("ORD-%s-%s", timestamp, uuid);
 
     }
 
+    public void addOrderItem(OrderItem item) {
 
+        orderItems.add(item);              // Add to list
+        item.setOrder(this);           // * Set bidirectional relationship
+        calculateTotalOrderPrice(); // Update total
+
+    }
+
+    public void removeOrderItem(OrderItem item) {
+
+        orderItems.remove(item);           // Remove from list
+        item.setOrder(null);           // * Break relationship
+        calculateTotalOrderPrice(); // Update total
+    }
 
 
 }
