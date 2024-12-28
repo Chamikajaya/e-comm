@@ -1,25 +1,17 @@
 package chamika.order.service;
 
+import chamika.order.dto.order.CreateOrderRequest;
+import chamika.order.dto.order.OrderResponse;
+import chamika.order.dto.order.OrderStatusUpdateBody;
+import jakarta.validation.Valid;
 
-import chamika.order.mapper.OrderItemMapper;
-import chamika.order.mapper.OrderMapper;
-import chamika.order.model.OrderItem;
-import chamika.order.repository.OrderItemRepository;
-import chamika.order.repository.OrderRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+public interface OrderService {
+    
+    OrderResponse createOrder(@Valid CreateOrderRequest request);
 
-@Service
-@RequiredArgsConstructor
-@Slf4j
-public class OrderService {
+    OrderResponse updateOrderStatus(@Valid OrderStatusUpdateBody request, Long orderId);
 
-    private final OrderMapper orderMapper;
-    private final OrderRepository orderRepository;
+    OrderResponse getOrdersByCustomerId(Long customerId);
 
-    private final OrderItemMapper orderItemMapper;
-    private final OrderItemRepository orderItemRepository;
-
-
+    OrderResponse getAllOrders();
 }
