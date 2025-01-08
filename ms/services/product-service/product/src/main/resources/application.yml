@@ -28,4 +28,12 @@ aws:
     bucket-name: project-velocity-bucket  # TODO: Create the bucket in AWS S3
 
 
+springdoc:
+
+  api-docs:
+    path: /api-docs
+
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
 

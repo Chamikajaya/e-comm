@@ -5,7 +5,6 @@ import chamika.order.dto.order.CreateOrderRequest;
 import chamika.order.dto.order.OrderResponse;
 import chamika.order.dto.order.OrderStatusUpdateBody;
 import chamika.order.exception.ResourceNotFoundException;
-import chamika.order.mapper.OrderItemMapper;
 import chamika.order.mapper.OrderMapper;
 import chamika.order.model.Order;
 import chamika.order.repository.OrderRepository;
