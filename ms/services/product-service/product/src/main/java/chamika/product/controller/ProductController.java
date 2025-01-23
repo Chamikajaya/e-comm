@@ -19,28 +19,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductController {
 
-// ????    TODO: Implement Role Based Access Control - Customer, Steward Only, Supplier Only, Authenticated / Unauthenticated routes config -- Or could that be done in BFF since it's the one that's going to be calling these services?
 
 
     private final ProductService productService;
 
 
-    // * @RequestPart annotation is used instead of @RequestBody because the createProduct method expects a multipart request containing both a JSON object (ProductCreateReqBody) and a list of files (List<MultipartFile>).
     @PostMapping
     public ResponseEntity<ProductResponseBody> createProduct(
             @RequestPart("product") @Valid ProductCreateReqBody reqBody,
             @RequestPart("images") List<MultipartFile> images
     ) {
 
-        // * First upload images to s3 and get image URLs to store in the database :)
         List<String> imageUrls = productService.uploadProductImages(images);
 
-        // Create product with image URLs
         ProductResponseBody product = productService.createProduct(reqBody, imageUrls);
         return ResponseEntity.status(HttpStatus.CREATED).body(product);
     }
 
-    // Combine search and getAll into single endpoint
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<PageResponse<ProductResponseBody>> getAllProducts(
@@ -53,7 +48,6 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllProducts(page, size, sortBy, sortDir, query));
 
     }
-
 
 
     @PutMapping("/{id}")
@@ -69,7 +63,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<ProductResponseBody> getProduct(@PathVariable Long id) {
+    public ResponseEntity<ProductResponseBody> getProductById(@PathVariable Long id) {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
