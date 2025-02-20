@@ -107,7 +107,7 @@ public class ProductServiceImpl implements ProductService {
         log.info("Fetching product with id: {}", id);
 
         Product product = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
-
+ 
         return productMapper.toResponseBody(product);
     }
 
